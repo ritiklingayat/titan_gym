@@ -1,0 +1,2 @@
+import SectionTitle from '../components/common/SectionTitle.jsx';import { images } from '../data/gymData.js';
+export default function Gallery(){return <section className="px-4 py-16"><SectionTitle eyebrow="Gallery" title="Gym Photos"/><div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-3">{images.gallery.map((img,i)=><img key={img} src={img} className={`h-72 w-full rounded-3xl object-cover ${i===0?'md:col-span-2':''}`}/>)}</div></section>}

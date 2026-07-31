@@ -1,202 +1,254 @@
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import {
+  Trash2,
+  LoaderCircle,
+} from "lucide-react";
 
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import Card from "../components/common/Card.jsx";
+import Loader from "../components/common/Loader.jsx";
 
 import {
   getAllEnquiries,
   deleteEnquiry,
-  updateStatus
-} from "../services/enquiryService";
+  updateStatus,
+} from "../services/enquiryService.js";
 
 export default function Enquiries() {
-
   const [enquiries, setEnquiries] = useState([]);
 
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
-  useEffect(() => {
-    loadEnquiries();
-  }, []);
+  const loadEnquiries = async (showLoader = false) => {
+    if (showLoader) {
+      setLoading(true);
+    }
 
-  const loadEnquiries = async () => {
     try {
-
       const data = await getAllEnquiries();
 
-      setEnquiries(data);
-
+      setEnquiries(
+        Array.isArray(data) ? data : [],
+      );
     } catch (error) {
+      console.error(
+        "Unable to load enquiries:",
+        error,
+      );
 
-      console.log(error);
-
+      setEnquiries([]);
     } finally {
-
-      setLoading(false);
-
+      if (showLoader) {
+        setLoading(false);
+      }
     }
   };
 
-  const handleStatusChange = async (id, status) => {
+  useEffect(() => {
+    loadEnquiries(true);
+  }, []);
 
+  const handleStatusChange = async (
+    id,
+    status,
+  ) => {
     try {
+      setUpdatingId(id);
 
-        await updateStatus(id, status);
+      await updateStatus(id, status);
 
-        loadEnquiries();
-
+      setEnquiries((currentEnquiries) =>
+        currentEnquiries.map((enquiry) =>
+          enquiry.id === id
+            ? {
+                ...enquiry,
+                status,
+              }
+            : enquiry,
+        ),
+      );
     } catch (error) {
+      console.error(
+        "Unable to update enquiry status:",
+        error,
+      );
 
-        console.log(error);
+      alert("Unable to update enquiry status.");
 
+      await loadEnquiries(false);
+    } finally {
+      setUpdatingId(null);
     }
-
-};
+  };
 
   const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Delete this enquiry?",
+    );
 
-    if (!window.confirm("Delete this enquiry?")) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
+      setDeletingId(id);
 
       await deleteEnquiry(id);
 
-      loadEnquiries();
-
+      setEnquiries((currentEnquiries) =>
+        currentEnquiries.filter(
+          (enquiry) => enquiry.id !== id,
+        ),
+      );
     } catch (error) {
-
-      console.log(error);
+      console.error(
+        "Unable to delete enquiry:",
+        error,
+      );
 
       alert("Unable to delete enquiry.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
+  const formatDate = (dateValue) => {
+    if (!dateValue) {
+      return "—";
     }
 
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+      return dateValue;
+    }
+
+    return date.toLocaleString();
   };
 
   return (
     <DashboardLayout type="admin">
-
       <h1 className="mb-6 text-4xl font-black">
         Enquiry Management
       </h1>
 
       {loading ? (
-
         <Card>
-
-          <p className="text-center text-white/50 py-10">
-            Loading enquiries...
-          </p>
-
+          <Loader text="Loading enquiries..." />
         </Card>
-
       ) : enquiries.length === 0 ? (
-
         <Card>
-
-          <p className="text-center text-white/50 py-10">
+          <p className="py-10 text-center text-white/50">
             No enquiries found.
           </p>
-
         </Card>
-
       ) : (
-
         <div className="grid gap-4">
-
           {enquiries.map((enquiry) => (
-
             <Card key={enquiry.id}>
-
-              <div className="flex justify-between items-start">
-
-                <div>
-
-                  <h3 className="text-2xl font-black">
-
-                    {enquiry.name}
-
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <h3 className="break-words text-2xl font-black">
+                    {enquiry.name || "Unknown"}
                   </h3>
 
-                  <p className="text-brand-yellow mt-1">
-
-                    {enquiry.plan}
-
+                  <p className="mt-1 text-brand-yellow">
+                    {enquiry.plan || "No plan selected"}
                   </p>
 
-                  <p className="text-white/70 mt-2">
-
-                    📞 {enquiry.mobile}
-
+                  <p className="mt-2 break-words text-white/70">
+                    📞 {enquiry.mobile || "—"}
                   </p>
 
-                  <p className="text-white/70 mt-2">
-
-                    💬 {enquiry.message}
-
+                  <p className="mt-2 break-words text-white/70">
+                    💬 {enquiry.message || "No message"}
                   </p>
 
-                  <p className="text-white/50 mt-3 text-sm">
-
-                    Date :{" "}
-                    {new Date(
-                      enquiry.enquiryDate
-                    ).toLocaleString()}
-
+                  <p className="mt-3 text-sm text-white/50">
+                    Date:{" "}
+                    {formatDate(
+                      enquiry.enquiryDate,
+                    )}
                   </p>
-<select
-    value={enquiry.status}
-    onChange={(e) =>
-        handleStatusChange(
-            enquiry.id,
-            e.target.value
-        )
-    }
-    className="mt-3 rounded-lg bg-black border border-white/20 p-2"
->
 
-    <option value="Pending">
-        Pending
-    </option>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <select
+                      value={
+                        enquiry.status || "Pending"
+                      }
+                      disabled={
+                        updatingId === enquiry.id ||
+                        deletingId === enquiry.id
+                      }
+                      onChange={(event) =>
+                        handleStatusChange(
+                          enquiry.id,
+                          event.target.value,
+                        )
+                      }
+                      className="rounded-lg border border-white/20 bg-black p-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="Pending">
+                        Pending
+                      </option>
 
-    <option value="Contacted">
-        Contacted
-    </option>
+                      <option value="Contacted">
+                        Contacted
+                      </option>
 
-    <option value="Visited">
-        Visited
-    </option>
+                      <option value="Visited">
+                        Visited
+                      </option>
 
-    <option value="Joined">
-        Joined
-    </option>
+                      <option value="Joined">
+                        Joined
+                      </option>
 
-    <option value="Closed">
-        Closed
-    </option>
+                      <option value="Closed">
+                        Closed
+                      </option>
+                    </select>
 
-</select>
-
+                    {updatingId === enquiry.id && (
+                      <span className="inline-flex items-center gap-2 text-sm text-brand-yellow">
+                        <LoaderCircle
+                          size={16}
+                          className="animate-spin"
+                        />
+                        Updating status...
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <button
-                  onClick={() => handleDelete(enquiry.id)}
-                  className="rounded-full bg-red-500/20 p-3 text-red-400 hover:bg-red-500/30"
+                  type="button"
+                  title="Delete enquiry"
+                  onClick={() =>
+                    handleDelete(enquiry.id)
+                  }
+                  disabled={
+                    deletingId === enquiry.id ||
+                    updatingId === enquiry.id
+                  }
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-red-500/20 p-3 text-red-400 hover:bg-red-500/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <Trash2 size={18} />
+                  {deletingId === enquiry.id ? (
+                    <LoaderCircle
+                      size={18}
+                      className="animate-spin"
+                    />
+                  ) : (
+                    <Trash2 size={18} />
+                  )}
                 </button>
-
               </div>
-
             </Card>
-
           ))}
-
         </div>
-
       )}
-
     </DashboardLayout>
   );
 }

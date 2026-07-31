@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Pencil, Plus, Trash2, User } from 'lucide-react';
+
 
 import DashboardLayout from '../components/layout/DashboardLayout.jsx';
 import Card from '../components/common/Card.jsx';
 import Button from '../components/common/Button.jsx';
 import Modal from '../components/common/Modal.jsx';
+import Loader from "../components/common/Loader.jsx";
+import {
+  Pencil,
+  Plus,
+  Trash2,
+  User,
+  LoaderCircle,
+} from "lucide-react";
 
 import {
     addTrainer,
@@ -37,32 +45,40 @@ export default function TrainersManagement() {
 
     const [busy, setBusy] = useState(false);
 
+    const [pageLoading, setPageLoading] = useState(true);
+
+    const [deletingId, setDeletingId] = useState(null);
+
 
 
     useEffect(() => {
-
-        loadTrainers();
-
-    }, []);
+  loadTrainers(true);
+}, []);
 
 
 
-    const loadTrainers = async () => {
+    const loadTrainers = async (showLoader = false) => {
+  if (showLoader) {
+    setPageLoading(true);
+  }
 
-        try {
+  try {
+    const response = await getAllTrainers();
 
-            const response = await getAllTrainers();
+    const data = Array.isArray(response)
+      ? response
+      : response.data;
 
-            setTrainers(response.data);
-
-
-        } catch(error) {
-
-            console.log("Trainer fetch error:", error);
-
-        }
-
-    };
+    setTrainers(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Trainer fetch error:", error);
+    setTrainers([]);
+  } finally {
+    if (showLoader) {
+      setPageLoading(false);
+    }
+  }
+};
 
 
 
@@ -349,7 +365,17 @@ export default function TrainersManagement() {
 
 
 
-            <div className="grid gap-5 md:grid-cols-3">
+            {pageLoading ? (
+
+    <Card>
+
+        <Loader text="Loading trainers..." />
+
+    </Card>
+
+) : (
+
+<div className="grid gap-5 md:grid-cols-3">
 
 
                 {trainers.map((trainer)=>(
@@ -453,19 +479,26 @@ export default function TrainersManagement() {
 
 
 
-                            <button
-
-                            onClick={()=>handleDelete(trainer)}
-
-                            className="inline-flex items-center gap-2 rounded-full bg-red-500/20 px-4 py-2 text-red-400">
-
-
-                                <Trash2 size={15}/>
-
-                                Delete
-
-
-                            </button>
+                          <button
+  onClick={() => handleDelete(trainer)}
+  disabled={deletingId === trainer.id}
+  className="inline-flex items-center gap-2 rounded-full bg-red-500/20 px-4 py-2 text-red-400 disabled:opacity-50"
+>
+  {deletingId === trainer.id ? (
+    <>
+      <LoaderCircle
+        size={15}
+        className="animate-spin"
+      />
+      Deleting...
+    </>
+  ) : (
+    <>
+      <Trash2 size={15} />
+      Delete
+    </>
+  )}
+</button>
 
 
                         </div>
@@ -479,7 +512,7 @@ export default function TrainersManagement() {
 
 
 
-            </div>
+            </div> )}
 
 
 
@@ -619,10 +652,11 @@ export default function TrainersManagement() {
 
 
                     <Button
-
-                    type="button"
-
-                    onClick={closeForm}>
+    type="button"
+    variant="outline"
+    onClick={closeForm}
+    disabled={busy}
+>
 
                         Cancel
 
@@ -631,16 +665,18 @@ export default function TrainersManagement() {
 
 
                     <Button
-
-                    type="submit"
-
-                    disabled={busy}>
-
-
-                        {busy ? "Saving..." : "Save Trainer"}
-
-
-                    </Button>
+    type="submit"
+    loading={busy}
+    loadingText={
+        editingTrainer
+            ? "Updating trainer..."
+            : "Adding trainer..."
+    }
+>
+    {editingTrainer
+        ? "Update Trainer"
+        : "Add Trainer"}
+</Button>
 
 
                 </div>

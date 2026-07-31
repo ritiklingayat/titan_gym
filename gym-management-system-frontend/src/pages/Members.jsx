@@ -302,21 +302,11 @@ export default function Members() {
         mode: form.mode,
       };
 
-      const multipartData = new FormData();
+      await addMember(
+  memberData,
+  selectedPhotoFile,
+);
 
-      multipartData.append(
-        "member",
-        JSON.stringify(memberData),
-      );
-
-      if (selectedPhotoFile) {
-        multipartData.append(
-          "photo",
-          selectedPhotoFile,
-        );
-      }
-
-      await addMember(multipartData);
       await refresh(false);
 
       setModal(null);

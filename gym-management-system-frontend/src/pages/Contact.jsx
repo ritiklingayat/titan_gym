@@ -44,13 +44,18 @@ export default function Contact() {
         message: "",
       });
     } catch (error) {
-      console.error(
-        "Unable to submit enquiry:",
-        error,
-      );
+  console.error(
+    "Unable to submit enquiry:",
+    error.response?.data || error,
+  );
 
-      alert("Unable to submit enquiry.");
-    } finally {
+  const backendMessage =
+    error.response?.data?.message ||
+    error.response?.data?.error ||
+    "Unable to submit enquiry.";
+
+  alert(backendMessage);
+} finally {
       setSubmitting(false);
     }
   };

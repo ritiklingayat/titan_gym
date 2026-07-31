@@ -10,7 +10,25 @@ export const getMemberById = async (id) => {
   return response.data;
 };
 
-export const addMember = async (formData) => {
+export const addMember = async (
+  member,
+  photoFile,
+) => {
+  const formData = new FormData();
+
+  const memberBlob = new Blob(
+    [JSON.stringify(member)],
+    {
+      type: "application/json",
+    },
+  );
+
+  formData.append("member", memberBlob);
+
+  if (photoFile instanceof File) {
+    formData.append("photo", photoFile);
+  }
+
   const response = await API.post(
     "/members",
     formData,
@@ -26,10 +44,14 @@ export const updateMember = async (
 ) => {
   const formData = new FormData();
 
-  formData.append(
-    "member",
-    JSON.stringify(member),
+  const memberBlob = new Blob(
+    [JSON.stringify(member)],
+    {
+      type: "application/json",
+    },
   );
+
+  formData.append("member", memberBlob);
 
   if (photoFile instanceof File) {
     formData.append("photo", photoFile);

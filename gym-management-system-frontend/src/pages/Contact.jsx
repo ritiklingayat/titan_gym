@@ -44,18 +44,28 @@ export default function Contact() {
         message: "",
       });
     } catch (error) {
-  console.error(
-    "Unable to submit enquiry:",
-    error.response?.data || error,
-  );
+      console.error(
+        "Unable to submit enquiry:",
+        error.response?.data || error,
+      );
 
-  const backendMessage =
-    error.response?.data?.message ||
-    error.response?.data?.error ||
-    "Unable to submit enquiry.";
+      const validationErrors =
+        error.response?.data?.errors;
 
-  alert(backendMessage);
-} finally {
+      const firstValidationMessage =
+        validationErrors &&
+        typeof validationErrors === "object"
+          ? Object.values(validationErrors)[0]
+          : null;
+
+      const backendMessage =
+        firstValidationMessage ||
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Unable to submit enquiry.";
+
+      alert(backendMessage);
+    } finally {
       setSubmitting(false);
     }
   };
@@ -76,7 +86,11 @@ export default function Contact() {
             <input
               {...register("name", {
                 required: "Full name is required.",
+                validate: (value) =>
+                  value.trim().length > 0 ||
+                  "Full name is required.",
               })}
+              type="text"
               disabled={submitting}
               placeholder="Full Name"
               className="w-full rounded-2xl border border-white/10 bg-black/40 p-4 outline-none focus:border-brand-orange disabled:cursor-not-allowed disabled:opacity-60"
@@ -94,15 +108,23 @@ export default function Contact() {
               {...register("phone", {
                 required: "Phone number is required.",
                 pattern: {
-                  value: /^[0-9]{10}$/,
+                  value: /^[6-9][0-9]{9}$/,
                   message:
-                    "Enter a valid 10-digit phone number.",
+                    "Enter a valid 10-digit Indian mobile number.",
                 },
               })}
               type="tel"
+              inputMode="numeric"
               maxLength={10}
               disabled={submitting}
               placeholder="Phone Number"
+              onInput={(event) => {
+                event.target.value =
+                  event.target.value.replace(
+                    /\D/g,
+                    "",
+                  );
+              }}
               className="w-full rounded-2xl border border-white/10 bg-black/40 p-4 outline-none focus:border-brand-orange disabled:cursor-not-allowed disabled:opacity-60"
             />
 
@@ -113,33 +135,58 @@ export default function Contact() {
             )}
           </div>
 
-          <select
-            {...register("plan", {
-              required: "Please select a plan.",
-            })}
-            disabled={submitting}
-            className="rounded-2xl border border-white/10 bg-black/40 p-4 outline-none disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <option value="Monthly Plan">
-              Monthly Plan
-            </option>
+          <div>
+            <select
+              {...register("plan", {
+                required: "Please select a plan.",
+              })}
+              disabled={submitting}
+              className="w-full rounded-2xl border border-white/10 bg-black/40 p-4 outline-none focus:border-brand-orange disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <option value="Monthly Plan">
+                Monthly Plan
+              </option>
 
-            <option value="3 Month Plan">
-              3 Month Plan
-            </option>
+              <option value="3 Month Plan">
+                3 Month Plan
+              </option>
 
-            <option value="Yearly Plan">
-              Yearly Plan
-            </option>
-          </select>
+              <option value="6 Month Plan">
+                6 Month Plan
+              </option>
 
-          <textarea
-            {...register("message")}
-            disabled={submitting}
-            placeholder="Message"
-            rows={5}
-            className="resize-none rounded-2xl border border-white/10 bg-black/40 p-4 outline-none focus:border-brand-orange disabled:cursor-not-allowed disabled:opacity-60"
-          />
+              <option value="Personal Training">
+                Personal Training
+              </option>
+            </select>
+
+            {errors.plan && (
+              <p className="mt-1 text-sm text-red-400">
+                {errors.plan.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <textarea
+              {...register("message", {
+                required: "Message is required.",
+                validate: (value) =>
+                  value.trim().length > 0 ||
+                  "Message is required.",
+              })}
+              disabled={submitting}
+              placeholder="Message"
+              rows={5}
+              className="w-full resize-none rounded-2xl border border-white/10 bg-black/40 p-4 outline-none focus:border-brand-orange disabled:cursor-not-allowed disabled:opacity-60"
+            />
+
+            {errors.message && (
+              <p className="mt-1 text-sm text-red-400">
+                {errors.message.message}
+              </p>
+            )}
+          </div>
 
           <Button
             type="submit"

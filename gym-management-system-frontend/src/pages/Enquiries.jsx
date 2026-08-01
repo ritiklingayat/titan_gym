@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
-  Trash2,
   LoaderCircle,
+  Trash2,
 } from "lucide-react";
 
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
@@ -18,10 +18,14 @@ export default function Enquiries() {
   const [enquiries, setEnquiries] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [updatingId, setUpdatingId] = useState(null);
-  const [deletingId, setDeletingId] = useState(null);
+  const [updatingId, setUpdatingId] =
+    useState(null);
+  const [deletingId, setDeletingId] =
+    useState(null);
 
-  const loadEnquiries = async (showLoader = false) => {
+  const loadEnquiries = async (
+    showLoader = false,
+  ) => {
     if (showLoader) {
       setLoading(true);
     }
@@ -35,10 +39,17 @@ export default function Enquiries() {
     } catch (error) {
       console.error(
         "Unable to load enquiries:",
-        error,
+        error.response?.data || error,
       );
 
       setEnquiries([]);
+
+      const backendMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Unable to load enquiries.";
+
+      alert(backendMessage);
     } finally {
       if (showLoader) {
         setLoading(false);
@@ -54,10 +65,10 @@ export default function Enquiries() {
     id,
     status,
   ) => {
+    const previousEnquiries = enquiries;
+
     try {
       setUpdatingId(id);
-
-      await updateStatus(id, status);
 
       setEnquiries((currentEnquiries) =>
         currentEnquiries.map((enquiry) =>
@@ -69,15 +80,22 @@ export default function Enquiries() {
             : enquiry,
         ),
       );
+
+      await updateStatus(id, status);
     } catch (error) {
       console.error(
         "Unable to update enquiry status:",
-        error,
+        error.response?.data || error,
       );
 
-      alert("Unable to update enquiry status.");
+      setEnquiries(previousEnquiries);
 
-      await loadEnquiries(false);
+      const backendMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Unable to update enquiry status.";
+
+      alert(backendMessage);
     } finally {
       setUpdatingId(null);
     }
@@ -105,10 +123,15 @@ export default function Enquiries() {
     } catch (error) {
       console.error(
         "Unable to delete enquiry:",
-        error,
+        error.response?.data || error,
       );
 
-      alert("Unable to delete enquiry.");
+      const backendMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Unable to delete enquiry.";
+
+      alert(backendMessage);
     } finally {
       setDeletingId(null);
     }
@@ -125,7 +148,29 @@ export default function Enquiries() {
       return dateValue;
     }
 
-    return date.toLocaleString();
+    return date.toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  };
+
+  const statusClasses = (status) => {
+    switch (status) {
+      case "Joined":
+        return "border-green-500/40 text-green-400";
+
+      case "Visited":
+        return "border-blue-500/40 text-blue-400";
+
+      case "Contacted":
+        return "border-orange-500/40 text-orange-400";
+
+      case "Closed":
+        return "border-red-500/40 text-red-400";
+
+      default:
+        return "border-yellow-500/40 text-yellow-400";
+    }
   };
 
   return (
@@ -155,15 +200,19 @@ export default function Enquiries() {
                   </h3>
 
                   <p className="mt-1 text-brand-yellow">
-                    {enquiry.plan || "No plan selected"}
+                    {enquiry.plan ||
+                      "No plan selected"}
                   </p>
 
                   <p className="mt-2 break-words text-white/70">
-                    📞 {enquiry.mobile || "—"}
+                    Phone:{" "}
+                    {enquiry.mobile || "—"}
                   </p>
 
                   <p className="mt-2 break-words text-white/70">
-                    💬 {enquiry.message || "No message"}
+                    Message:{" "}
+                    {enquiry.message ||
+                      "No message"}
                   </p>
 
                   <p className="mt-3 text-sm text-white/50">
@@ -173,14 +222,17 @@ export default function Enquiries() {
                     )}
                   </p>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
                     <select
                       value={
-                        enquiry.status || "Pending"
+                        enquiry.status ||
+                        "Pending"
                       }
                       disabled={
-                        updatingId === enquiry.id ||
-                        deletingId === enquiry.id
+                        updatingId ===
+                          enquiry.id ||
+                        deletingId ===
+                          enquiry.id
                       }
                       onChange={(event) =>
                         handleStatusChange(
@@ -188,7 +240,9 @@ export default function Enquiries() {
                           event.target.value,
                         )
                       }
-                      className="rounded-lg border border-white/20 bg-black p-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      className={`rounded-lg border bg-black p-2 outline-none disabled:cursor-not-allowed disabled:opacity-50 ${statusClasses(
+                        enquiry.status,
+                      )}`}
                     >
                       <option value="Pending">
                         Pending
@@ -211,12 +265,14 @@ export default function Enquiries() {
                       </option>
                     </select>
 
-                    {updatingId === enquiry.id && (
+                    {updatingId ===
+                      enquiry.id && (
                       <span className="inline-flex items-center gap-2 text-sm text-brand-yellow">
                         <LoaderCircle
                           size={16}
                           className="animate-spin"
                         />
+
                         Updating status...
                       </span>
                     )}
@@ -226,16 +282,19 @@ export default function Enquiries() {
                 <button
                   type="button"
                   title="Delete enquiry"
+                  aria-label="Delete enquiry"
                   onClick={() =>
                     handleDelete(enquiry.id)
                   }
                   disabled={
-                    deletingId === enquiry.id ||
+                    deletingId ===
+                      enquiry.id ||
                     updatingId === enquiry.id
                   }
-                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-red-500/20 p-3 text-red-400 hover:bg-red-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex shrink-0 items-center justify-center rounded-full bg-red-500/20 p-3 text-red-400 transition hover:bg-red-500/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {deletingId === enquiry.id ? (
+                  {deletingId ===
+                  enquiry.id ? (
                     <LoaderCircle
                       size={18}
                       className="animate-spin"

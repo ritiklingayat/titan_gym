@@ -21,10 +21,13 @@ export const updateStatus = async (
   id,
   status,
 ) => {
-  const response = await API.patch(
+  const response = await API.put(
     `/enquiries/${id}/status`,
+    null,
     {
-      status,
+      params: {
+        status,
+      },
     },
   );
 

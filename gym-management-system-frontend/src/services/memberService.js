@@ -16,14 +16,10 @@ export const addMember = async (
 ) => {
   const formData = new FormData();
 
-  const memberBlob = new Blob(
-    [JSON.stringify(member)],
-    {
-      type: "application/json",
-    },
+  formData.append(
+    "member",
+    JSON.stringify(member),
   );
-
-  formData.append("member", memberBlob);
 
   if (photoFile instanceof File) {
     formData.append("photo", photoFile);
@@ -44,14 +40,10 @@ export const updateMember = async (
 ) => {
   const formData = new FormData();
 
-  const memberBlob = new Blob(
-    [JSON.stringify(member)],
-    {
-      type: "application/json",
-    },
+  formData.append(
+    "member",
+    JSON.stringify(member),
   );
-
-  formData.append("member", memberBlob);
 
   if (photoFile instanceof File) {
     formData.append("photo", photoFile);

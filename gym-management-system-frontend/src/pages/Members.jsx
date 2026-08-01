@@ -134,22 +134,33 @@ export default function Members() {
   }, []);
 
   const filtered = useMemo(() => {
-    const searchValue = query.trim().toLowerCase();
+  const searchValue = query
+    .trim()
+    .toLowerCase();
 
-    if (!searchValue) {
-      return members;
-    }
+  if (!searchValue) {
+    return members;
+  }
 
-    return members.filter((member) => {
-      const name = member.name?.toLowerCase() || "";
-      const mobile = member.mobile || "";
-
-      return (
-        name.includes(searchValue) ||
-        mobile.includes(searchValue)
+  return members.filter((member) => {
+    const searchableValues = [
+      member.name,
+      member.mobile,
+      member.gender,
+      member.planName,
+      member.status,
+      member.address,
+    ]
+      .filter(Boolean)
+      .map((value) =>
+        String(value).toLowerCase(),
       );
-    });
-  }, [members, query]);
+
+    return searchableValues.some((value) =>
+      value.includes(searchValue),
+    );
+  });
+}, [members, query]);
 
   const closeModal = () => {
     if (savingMember || savingPayment) {
@@ -504,7 +515,7 @@ export default function Members() {
             setQuery(event.target.value)
           }
           disabled={pageLoading}
-          placeholder="Search by name or mobile number..."
+          placeholder="Search by name, mobile, gender, plan or status..."
           className="w-full bg-transparent outline-none placeholder:text-white/40 disabled:cursor-not-allowed disabled:opacity-60"
         />
       </div>

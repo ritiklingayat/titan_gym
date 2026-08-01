@@ -33,12 +33,114 @@ export const images = {
 };
 
 export const plans = [
-  { id: 'quarterly', name: '3 Month Plan', price: 6500, months: 3, duration: '3 Months', tag: 'Popular', type: 'regular', features: ['Everything monthly', 'Fitness assessment', 'Diet consultation', 'Progress tracking'] },
-  { id: 'halfyearly', name: '6 Month Plan', price: 12000, months: 6, duration: '6 Months', tag: 'Value', type: 'regular', features: ['Gym access', 'Fitness assessment', 'Diet consultation', 'Progress tracking'] },
-  {id: 'monthly_basic',name: '1 Month (Without Cardio)',price: 600,months: 1,duration: '1 Month',tag: 'Basic',type: 'regular',features: ['Gym access','Basic workout chart','Locker support','No cardio access']},
-  { id: 'monthly', name: '1 Month', price: 1399, months: 1, duration: '1 Month', tag: 'Starter', type: 'regular', features: ['Gym access', 'Cardio zone', 'Basic workout chart', 'Locker support'] },
-  { id: 'pt_yearly', name: 'One Month P.T.', price: 5000, months: 1, duration: '1 Month', tag: 'Premium', type: 'pt', features: ['Premium personal trainer', 'Customized plan', 'Full nutrition support', 'Priority booking'] },
-  { id: 'pt_monthly', name: 'One Month General P.T.', price: 2399, months: 1, duration: '1 Month', tag: 'Starter', type: 'pt', features: ['Personal trainer', 'Gym access', 'Customized workout plan', 'Trainer guidance'] },
+  // Without Trainer Plans
+  {
+    id: "monthly_basic",
+    name: "1 Month Without Cardio",
+    price: 600,
+    months: 1,
+    duration: "1 Month",
+    tag: "Basic",
+    type: "regular",
+    features: [
+      "Gym access",
+      "Basic workout chart",
+      "Locker support",
+      "No cardio access",
+    ],
+  },
+  {
+    id: "monthly",
+    name: "1 Month With Cardio",
+    price: 1399,
+    months: 1,
+    duration: "1 Month",
+    tag: "Starter",
+    type: "regular",
+    features: [
+      "Gym access",
+      "Cardio zone",
+      "Basic workout chart",
+      "Locker support",
+    ],
+  },
+  {
+    id: "quarterly",
+    name: "3 Month Plan",
+    price: 6500,
+    months: 3,
+    duration: "3 Months",
+    tag: "Popular",
+    type: "regular",
+    features: [
+      "Everything monthly",
+      "Fitness assessment",
+      "Diet consultation",
+      "Progress tracking",
+    ],
+  },
+  {
+    id: "halfyearly",
+    name: "6 Month Plan",
+    price: 12000,
+    months: 6,
+    duration: "6 Months",
+    tag: "Value",
+    type: "regular",
+    features: [
+      "Gym access",
+      "Fitness assessment",
+      "Diet consultation",
+      "Progress tracking",
+    ],
+  },
+
+  // With Trainer Plans
+  {
+    id: "pt_cardio_monthly",
+    name: "1 Month P.T. With Cardio",
+    price: 1600,
+    months: 1,
+    duration: "1 Month",
+    tag: "Basic P.T.",
+    type: "pt",
+    features: [
+      "Personal trainer",
+      "Gym access",
+      "Cardio access",
+      "Trainer guidance",
+    ],
+  },
+  {
+    id: "pt_monthly",
+    name: "One Month General P.T.",
+    price: 2399,
+    months: 1,
+    duration: "1 Month",
+    tag: "Starter",
+    type: "pt",
+    features: [
+      "Personal trainer",
+      "Gym access",
+      "Customized workout plan",
+      "Trainer guidance",
+    ],
+  },
+  {
+    id: "pt_yearly",
+    name: "One Month Premium P.T.",
+    price: 5000,
+    months: 1,
+    duration: "1 Month",
+    tag: "Premium",
+    type: "pt",
+    features: [
+      "Premium personal trainer",
+      "Customized plan",
+      "Full nutrition support",
+      "Priority booking",
+    ],
+  },
 ];
 
 export const programs = [

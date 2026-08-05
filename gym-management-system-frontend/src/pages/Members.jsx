@@ -274,6 +274,27 @@ export default function Members() {
     }
   };
 
+  const validateMemberForm = () => {
+  if (!form.name.trim()) {
+    alert("Please enter the member's full name.");
+    return false;
+  }
+
+  if (!/^\d{10}$/.test(form.mobile)) {
+    alert("Please enter a valid 10-digit mobile number.");
+    return false;
+  }
+
+  if (!form.address.trim()) {
+    alert("Please enter the member's address.");
+    return false;
+  }
+
+  return true;
+};
+
+
+
   const validateTrainer = () => {
     if (
       form.trainer === "with" &&
@@ -287,11 +308,15 @@ export default function Members() {
   };
 
   const submitAdd = async (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (!validateTrainer()) {
-      return;
-    }
+  if (!validateMemberForm()) {
+    return;
+  }
+
+  if (!validateTrainer()) {
+    return;
+  }
 
     try {
       setSavingMember(true);
@@ -341,12 +366,16 @@ export default function Members() {
     event.preventDefault();
 
     if (!selected) {
-      return;
-    }
+  return;
+}
 
-    if (!validateTrainer()) {
-      return;
-    }
+if (!validateMemberForm()) {
+  return;
+}
+
+if (!validateTrainer()) {
+  return;
+}
 
     try {
       setSavingMember(true);
@@ -721,32 +750,42 @@ export default function Members() {
             </div>
 
             <input
-              required
-              disabled={savingMember}
-              placeholder="Full Name"
-              value={form.name}
-              onChange={(event) =>
-                setForm({
-                  ...form,
-                  name: event.target.value,
-                })
-              }
-              className="rounded-2xl border border-white/10 bg-black/40 p-4 disabled:opacity-60"
-            />
+  type="text"
+  required
+  disabled={savingMember}
+  placeholder="Full Name"
+  value={form.name}
+  onChange={(event) =>
+    setForm({
+      ...form,
+      name: event.target.value,
+    })
+  }
+  className="rounded-2xl border border-white/10 bg-black/40 p-4 disabled:opacity-60"
+/>
 
             <input
-              required
-              disabled={savingMember}
-              placeholder="Mobile Number"
-              value={form.mobile}
-              onChange={(event) =>
-                setForm({
-                  ...form,
-                  mobile: event.target.value,
-                })
-              }
-              className="rounded-2xl border border-white/10 bg-black/40 p-4 disabled:opacity-60"
-            />
+  type="tel"
+  required
+  disabled={savingMember}
+  placeholder="Mobile Number"
+  value={form.mobile}
+  maxLength={10}
+  minLength={10}
+  pattern="[0-9]{10}"
+  inputMode="numeric"
+  title="Mobile number must be exactly 10 digits"
+  onChange={(event) => {
+    const mobileNumber =
+      event.target.value.replace(/\D/g, "");
+
+    setForm({
+      ...form,
+      mobile: mobileNumber.slice(0, 10),
+    });
+  }}
+  className="rounded-2xl border border-white/10 bg-black/40 p-4 disabled:opacity-60"
+/>
 
             <input
               type="number"
@@ -798,18 +837,20 @@ export default function Members() {
               </option>
             </select>
 
-            <input
-              disabled={savingMember}
-              placeholder="Address"
-              value={form.address}
-              onChange={(event) =>
-                setForm({
-                  ...form,
-                  address: event.target.value,
-                })
-              }
-              className="rounded-2xl border border-white/10 bg-black/40 p-4 disabled:opacity-60 md:col-span-2"
-            />
+           <input
+  type="text"
+  required
+  disabled={savingMember}
+  placeholder="Address"
+  value={form.address}
+  onChange={(event) =>
+    setForm({
+      ...form,
+      address: event.target.value,
+    })
+  }
+  className="rounded-2xl border border-white/10 bg-black/40 p-4 disabled:opacity-60 md:col-span-2"
+/>
 
             <div className="md:col-span-2">
               <label className="mb-3 block text-sm font-bold text-white/60">

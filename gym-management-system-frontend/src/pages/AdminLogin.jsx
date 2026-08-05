@@ -7,6 +7,10 @@ import Card from "../components/common/Card.jsx";
 import Button from "../components/common/Button.jsx";
 import { loginAdmin, isAdminAuthed } from "../utils/auth.js";
 
+// Import your background image
+// Change the filename/path according to your project
+import loginBg from "../assets/login.jpg";
+
 export default function AdminLogin() {
   const nav = useNavigate();
 
@@ -34,22 +38,31 @@ export default function AdminLogin() {
   };
 
   return (
-    <section className="grid min-h-screen place-items-center bg-grid px-4">
-      <Card className="w-full max-w-md rounded-3xl p-8">
+    <section
+      className="relative grid min-h-screen place-items-center px-4 bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: `url(${loginBg})`,
+      }}
+    >
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/65"></div>
+
+      {/* Login Card */}
+      <Card className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-black/50 p-8 backdrop-blur-md">
 
         {/* Logo */}
-        {/* Replace with your logo if available */}
-        {/* <img src={logo} alt="Gym Logo" className="mx-auto mb-4 h-16 w-16" /> */}
+        {/* Uncomment if you have a logo */}
+        {/* <img src={logo} alt="Gym Logo" className="mx-auto mb-5 h-20 w-20 object-contain" /> */}
 
-        <p className="text-sm font-bold uppercase tracking-widest text-brand-orange">
+        <p className="text-center text-sm font-bold uppercase tracking-[4px] text-brand-orange">
           ADMIN PORTAL
         </p>
 
-        <h1 className="mt-2 text-4xl font-black">
+        <h1 className="mt-3 text-center text-4xl font-black text-white">
           Admin Login
         </h1>
 
-        <p className="mt-3 text-sm leading-6 text-white/60">
+        <p className="mt-3 text-center text-sm leading-6 text-white/70">
           Access the admin dashboard to manage members,
           memberships, attendance and payments.
         </p>
@@ -64,7 +77,7 @@ export default function AdminLogin() {
             type="email"
             required
             placeholder="Email Address"
-            className="w-full rounded-2xl border border-white/10 bg-black/40 p-4 outline-none transition focus:border-brand-orange"
+            className="w-full rounded-2xl border border-white/20 bg-white/10 p-4 text-white placeholder:text-white/50 outline-none transition-all duration-300 focus:border-brand-orange focus:bg-white/15"
           />
 
           {/* Password */}
@@ -74,13 +87,13 @@ export default function AdminLogin() {
               type={showPassword ? "text" : "password"}
               required
               placeholder="Password"
-              className="w-full rounded-2xl border border-white/10 bg-black/40 p-4 pr-14 outline-none transition focus:border-brand-orange"
+              className="w-full rounded-2xl border border-white/20 bg-white/10 p-4 pr-14 text-white placeholder:text-white/50 outline-none transition-all duration-300 focus:border-brand-orange focus:bg-white/15"
             />
 
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-brand-orange"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 transition hover:text-brand-orange"
             >
               {showPassword ? (
                 <EyeOff size={20} />
@@ -98,7 +111,7 @@ export default function AdminLogin() {
           )}
 
           {/* Login Button */}
-          <Button className="w-full justify-center">
+          <Button className="w-full justify-center py-4 text-base font-semibold">
             <LogIn size={18} />
             Login
           </Button>
@@ -106,7 +119,7 @@ export default function AdminLogin() {
 
         {/* Footer */}
         <div className="mt-8 border-t border-white/10 pt-5 text-center">
-          <p className="text-xs text-white/40">
+          <p className="text-xs tracking-wide text-white/50">
             Authorized Personnel Only
           </p>
         </div>
